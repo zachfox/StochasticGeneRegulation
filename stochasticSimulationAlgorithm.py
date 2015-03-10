@@ -46,7 +46,6 @@ class generalSSA:
         for i in self.propensityCoefficients:
             if type(i) == tuple: 
                 propensity[index]=i[0]*np.prod(x[i[1]])
-
             else:
                 propensity[index]=i(x,t)
             index+=1
@@ -57,11 +56,10 @@ class generalSSA:
         tspace=np.linspace(self.t0,self.tend,self.numTimes)
         tindex=1
         t = self.t0
-        num_species=np.size(self.x0)
-        self.solutionVec=np.zeros((num_species,np.size(tspace)))
+        self.numSpecies=np.size(self.x0)
+        self.solutionVec=np.zeros((self.numSpecies,np.size(tspace)))
         self.solutionVec[:,0]=np.ravel(self.x0)
         x=np.array(self.x0)
-        print self.x0
         while t<self.tend:
             a=self.propensityFunction(x.T,t)
             a0=np.sum(a)
@@ -81,6 +79,14 @@ class generalSSA:
         self.solutionVec[:,tindex:]=np.tile(np.array([self.solutionVec[:,tindex-1]]).T,b)
         return self.solutionVec
     
-    
-
-                      
+    def makeDistribution(self, numTrajectories):
+        ###############################################
+        #distribution array is 3D, organized as follows 
+        #[species,times,trajectoryNumber]
+        ###############################################
+        self.distributionArray = np.zeros((self.numSpecies,self.numTimes,numTrajectories))
+        for i in range(numTrajectories):
+            self.distributionArray[:,:,i] = self.runTrajectoryDirect()
+        return self.distributionArray
+        
+        
