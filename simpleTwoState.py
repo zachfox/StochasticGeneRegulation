@@ -23,14 +23,15 @@ r4 = np.array([[0,0,-1.0]])
 #initial conditions
 x0 = [0,1,0]
 #propensity vector
-kon,koff,kr1,deg = [1.0,0.1,10.0,.30]
+kon,koff,kr1,deg = [2.0,1.5,10.0,.30]
 propensityVec = [(kon,0),(koff,1),(kr1,1),(deg,2)]
 stoichiometryMatrix = np.concatenate((r1.T,r2.T,r3.T,r4.T),axis=1)
 #pick some times
 tstart = 0
-tend = 100
-numTimes = 10
+tend = 50
+numTimes = 50
 tspace = np.linspace(tstart,tend,numTimes)
+
 #run a single trajectory
 B = SSA.generalSSA(stoichiometryMatrix,x0,propensityVec,tstart,tend,numTimes)
 D = B.runTrajectoryDirect()

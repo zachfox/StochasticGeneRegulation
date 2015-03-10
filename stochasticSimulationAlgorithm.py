@@ -9,14 +9,20 @@ class generalSSA:
     
     def __init__(self,stoichiometryMatrix,initialConditions,propensityVec,t0,tend,numTimes):
         
-        #define stoichiometry matrix
-        self.stoich_mat=stoichiometryMatrix
-
         #define initial conditions
         if len(initialConditions)!=len(stoichiometryMatrix[:,0]):
             print 'wrong number of initial conditions'
             return
         self.x0=initialConditions
+        
+        #define number of species
+        self.numSpecies=np.size(self.x0)
+        
+        #define stoichiometry matrix
+        A,B=np.shape(stoichiometryMatrix)
+        Y=np.zeros((A,B+1))
+        Y[:,1:] = stoichiometryMatrix
+        self.stoich_mat=Y
         
         #######################################################################
         #define propensity functions/coefficients
@@ -56,7 +62,7 @@ class generalSSA:
         tspace=np.linspace(self.t0,self.tend,self.numTimes)
         tindex=1
         t = self.t0
-        self.numSpecies=np.size(self.x0)
+        
         self.solutionVec=np.zeros((self.numSpecies,np.size(tspace)))
         self.solutionVec[:,0]=np.ravel(self.x0)
         x=np.array(self.x0)
@@ -73,8 +79,8 @@ class generalSSA:
                 i=1
                 while np.sum(a[0:i])<r2:
                     i+=1
-                i-=2
-                x=(x.T+self.stoich_mat[:,i]).T                
+                i-=1
+                x=(x.T+self.stoich_mat[:,i]).T  
         b=np.size(self.solutionVec[1,tindex:]) 
         self.solutionVec[:,tindex:]=np.tile(np.array([self.solutionVec[:,tindex-1]]).T,b)
         return self.solutionVec
