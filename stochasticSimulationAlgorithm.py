@@ -109,6 +109,7 @@ class generalSSA:
         #Initialize MPI
         comm = MPI.COMM_WORLD
         rank,size = comm.Get_rank(), comm.Get_size()
+        print size
         if rank == 0:
             bigLoop = np.arange(numTrajectories)
             smallLoops = np.array_split(bigLoop,size)
@@ -116,8 +117,18 @@ class generalSSA:
             smallLoops = None
         smallLoop = comm.scatter(smallLoops,root=0)
         smallLoop = self.makeDistribution(len(smallLoop))
+    
         gathered_chunks = comm.gather(smallLoop,root=0)
-        return np.concatenate(gathered_chunks)
+        if rank ==0:
+            #print np.shape(gathered_chunks)
+            grouping = np.concatenate(gathered_chunks,axis=2)
+            print np.shape(grouping)
+            return grouping
+        else:
+            gathered_chunks=None
+            grouping = None
+        
+
         
         
         
