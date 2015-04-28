@@ -7,7 +7,7 @@ import numpy as np
 
 class generalSSA:
     
-    def __init__(self,stoichiometryMatrix,initialConditions,propensityVec,t0,tend,numTimes):
+    def __init__(self,stoichiometryMatrix,initialConditions,propensityVec,t0,tend,numTimes,fastRxn=False):
         
         #define initial conditions
         if len(initialConditions)!=len(stoichiometryMatrix[:,0]):
@@ -31,7 +31,8 @@ class generalSSA:
         #of reaction i and the species x upon which the reactions is proportional. 
         #xj can be a list of indeces or a single int. If propensity functions
         #are something different (hill,M-M,some time dependent function), 
-        #make the element in propensityVec that particular function, f(x,t). 
+        #make the element in propensityVec that particular function, f(x,t).
+        #[(ki,xj),function(x,t),...]
         #######################################################################
         
         self.propensityCoefficients = propensityVec
@@ -42,8 +43,10 @@ class generalSSA:
         self.numTimes = numTimes
         
         #define "fast" reaction for timekeeping
-        self.fastrxn = .5
-    
+        if fastRxn is True:
+            self.fastrxn = .5
+        else: 
+            self.fastrxn = .0000000000000001
     def propensityFunction(self,x,t):
         x=np.array(x)
         propensity = np.zeros(len(self.propensityCoefficients)+1)
@@ -90,9 +93,32 @@ class generalSSA:
         #distribution array is 3D, organized as follows 
         #[species,times,trajectoryNumber]
         ###############################################
-        self.distributionArray = np.zeros((self.numSpecies,self.numTimes,numTrajectories))
+        distributionArray = np.zeros((self.numSpecies,self.numTimes,numTrajectories))
         for i in range(numTrajectories):
-            self.distributionArray[:,:,i] = self.runTrajectoryDirect()
-        return self.distributionArray
+            distributionArray[:,:,i] = self.runTrajectoryDirect()
+        return distributionArray
+    
+    def makeDistributionMPI(self,numTrajectories):
+        ###############################################
+        #Parallelized SSA runs are implemented using mpi4py
+        #distribution array is 3D, organized as follows 
+        #[species,times,trajectoryNumber]
+        ###############################################
+        from mpi4py import MPI
+        self.distributionArray = np.zeros((self.numSpecies,self.numTimes,numTrajectories))
+        #Initialize MPI
+        comm = MPI.COMM_WORLD
+        rank,size = comm.Get_rank(), comm.Get_size()
+        if rank == 0:
+            bigLoop = np.arange(numTrajectories)
+            smallLoops = np.array_split(bigLoop,size)
+        else:
+            smallLoops = None
+        smallLoop = comm.scatter(smallLoops,root=0)
+        smallLoop = self.makeDistribution(len(smallLoop))
+        gathered_chunks = comm.gather(smallLoop,root=0)
+        return np.concatenate(gathered_chunks)
+        
+        
         
         
