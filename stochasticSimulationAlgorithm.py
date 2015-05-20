@@ -166,13 +166,16 @@ class generalSSA:
         
         def update_lines(num, data, axarr):
             m=0
-            for i in axarr:        
-                i[0].set_data(data[m,:num])
+            for i in axarr:
+                stuff =  np.vstack((self.tspace,data[m,:]))
+                print num
+                print stuff[...,:num]
+                i[0].set_data(stuff[...,:num])
                 m+=1
-            return axarr           
+            return axarr[0][0],axarr[1][0],axarr[2][0]           
             
         line_ani = animation.FuncAnimation(f, update_lines, self.tspace, fargs=(data, l),
-        interval=100, blit=True)
+        interval=50, blit=True)
         plt.show()
         
         

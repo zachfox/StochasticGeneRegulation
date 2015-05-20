@@ -37,7 +37,7 @@ B = SSA.generalSSA(stoichiometryMatrix,x0,propensityVec,tstart,tend,numTimes)
 D = B.runTrajectoryDirect()
 
 #Plotting using built-in plotting
-B.plotTrajectories([2,1,0],['mRNA','on state','off state'])
+#B.plotTrajectories([2,1,0],['mRNA','on state','off state'])
 #Make an animation
 B.makeTrajectoryAnimation([2,1,0],['mRNA','on state','off state'])
 
