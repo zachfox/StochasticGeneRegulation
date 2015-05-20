@@ -35,25 +35,18 @@ tspace = np.linspace(tstart,tend,numTimes)
 #run a single trajectory
 B = SSA.generalSSA(stoichiometryMatrix,x0,propensityVec,tstart,tend,numTimes)
 D = B.runTrajectoryDirect()
-#
-#plotting
-f,axarr = plt.subplots(nrows=3,ncols=1)
-axarr[0].plot(tspace,D[2,:])
-axarr[1].step(tspace,D[1,:])
-axarr[2].step(tspace,D[0,:])
-plt.xlabel('time')
-axarr[0].set_ylabel('number of mRNA')
-axarr[1].set_ylabel('on state')
-axarr[2].set_ylabel('off state')
-axarr[1].set_ylim([0,1.3])
-axarr[2].set_ylim([0,1.3])
+
+#Plotting using built-in plotting
+B.plotTrajectories([2,1,0],['mRNA','on state','off state'])
+#Make an animation
+B.makeTrajectoryAnimation([2,1,0],['mRNA','on state','off state'])
 
 #make a distribution 
-numTrajectories = 150
-start2 = time.time()
-G = B.makeDistribution(numTrajectories)
-print 'time without MPI: %f' % (time.time()-start2)
-plt.figure()
-plt.hist(G[-1,-2,:],bins=20,color = 'r')
+#numTrajectories = 150
+#start2 = time.time()
+#G = B.makeDistribution(numTrajectories)
+#print 'time without MPI: %f' % (time.time()-start2)
+#plt.figure()
+#plt.hist(G[-1,-2,:],bins=20,color = 'r')
 
                   

@@ -41,7 +41,7 @@ class generalSSA:
         self.t0 = t0 
         self.tend = tend
         self.numTimes = numTimes
-        
+        self.tspace = np.linspace(t0,tend,numTimes)
         #define "fast" reaction for timekeeping
         if fastRxn is True:
             self.fastrxn = .5
@@ -127,6 +127,57 @@ class generalSSA:
         else:
             gathered_chunks=None
             grouping = None
+    
+
+    def plotTrajectories(self,speciesID,speciesNames = None):
+        ######################################################
+        #This is a function to easily plot a single ssa trajectory
+        #For each species that the user wants to see. This is for convenience:
+        #If a more complex plot is desired the user can still easily accomplish
+        #this manually. 
+        ######################################################
+        import matplotlib.pyplot as plt
+        numSpecies = len(speciesID)
+        f,axarr = plt.subplots(nrows=numSpecies,ncols=1)
+        for i in range(numSpecies):
+            axarr[i].step(self.tspace,self.solutionVec[speciesID[i],:]) 
+            axarr[i].set_ylim([0, 1.2*np.max(self.solutionVec[speciesID[i],:])])
+            if speciesNames is not None:
+                axarr[i].set_ylabel(speciesNames[i])
+        axarr[-1].set_xlabel('Time')
+        f.show()
+        return (f,axarr)
+        
+    def makeTrajectoryAnimation(self,speciesID,speciesNames = None):
+        import matplotlib.pyplot as plt
+        import matplotlib.animation as animation
+        #Set up subplots
+        l=[]
+        numSpecies = len(speciesID)
+        f,axarr = plt.subplots(nrows=numSpecies,ncols=1)
+        for i in range(numSpecies):
+            l.append(axarr[i].step([],[]))
+            axarr[i].set_ylim([0, 1.2*np.max(self.solutionVec[speciesID[i],:])])
+            if speciesNames is not None:
+                axarr[i].set_ylabel(speciesNames[i])
+        axarr[-1].set_xlabel('Time')
+        #Get solutions from solutionVec
+        data = self.solutionVec[speciesID,:]
+        
+        def update_lines(num, data, axarr):
+            m=0
+            for i in axarr:        
+                i[0].set_data(data[m,:num])
+                m+=1
+            return axarr           
+            
+        line_ani = animation.FuncAnimation(f, update_lines, self.tspace, fargs=(data, l),
+        interval=100, blit=True)
+        plt.show()
+        
+        
+        
+        
         
 
         
