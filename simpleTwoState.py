@@ -7,7 +7,6 @@ Created on Tue Mar  3 14:40:49 2015
 import numpy as np
 import stochasticSimulationAlgorithm as SSA
 import matplotlib.pyplot as plt
-import time
 """
 This code is a simple two gene-state model, with one state corresponding to 
 no transcription, another corresponding to transcription.
@@ -37,16 +36,14 @@ B = SSA.generalSSA(stoichiometryMatrix,x0,propensityVec,tstart,tend,numTimes)
 D = B.runTrajectoryDirect()
 
 #Plotting using built-in plotting
-#B.plotTrajectories([2,1,0],['mRNA','on state','off state'])
+B.plotTrajectories([2,1,0],['mRNA','on state','off state'])
 #Make an animation
 B.makeTrajectoryAnimation([2,1,0],['mRNA','on state','off state'])
 
 #make a distribution 
-#numTrajectories = 150
-#start2 = time.time()
-#G = B.makeDistribution(numTrajectories)
-#print 'time without MPI: %f' % (time.time()-start2)
-#plt.figure()
-#plt.hist(G[-1,-2,:],bins=20,color = 'r')
+numTrajectories = 150
+G = B.makeDistribution(numTrajectories)
+plt.figure()
+plt.hist(G[-1,-2,:],bins=20,color = 'r')
 
                   
